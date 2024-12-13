@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+
 import Users from '../../models/user.model.js';
 
 export const protectRoute = async (req, res, next) => {
@@ -32,5 +32,21 @@ export const adminRoute = (req, res, next) => {
         next()
     }else{
         return res.status(403).json({ message: 'Access denied - Admin only'})
+    }
+}
+
+
+export const getCartProducts = async (req, res) => {
+    try {
+        const products = await products.find({_id:{$in:req.user.cartItems}})
+        const cartItems = products.maps(Product => {
+            const item = req.user.cartItems.find(cartItems => cartItems.id === Product.id)
+            return {...product.toJSON(),quantity:item.quantity}
+        })
+        res.json(cartItems)
+
+    } catch (error) {
+       console.log('error in getCartProducts controller', error.message)
+       res.status(500).json({ message: 'server error',  error: error.message}) 
     }
 }
